@@ -2,11 +2,11 @@
 #
 # How to build:
 #
-# docker build --build-arg BASE_REGISTRY=${BASE_URL} -t ark-ce-pentaho:latest .
+# docker build -t arkcase/pentaho-ce-install:latest .
 #
 ###########################################################################################################
 
-ARG BASE_REGISTRY
+ARG PUBLIC_REGISTRY="public.ecr.aws"
 ARG BASE_REPO="arkcase/base"
 ARG BASE_TAG="8.7.0"
 ARG VER="9.4.0.0-343"
@@ -33,9 +33,10 @@ ARG PENTAHO_SERVER="9.4.0.0-343"
 ARG PENTAHO_SERVER_URL="https://privatefilesbucket-community-edition.s3.us-west-2.amazonaws.com/${PENTAHO_SERVER}/ce/server/pentaho-server-ce-${PENTAHO_SERVER}.zip"
 ARG PENTAHO_PDI="${PENTAHO_SERVER}"
 ARG PENTAHO_PDI_URL="https://privatefilesbucket-community-edition.s3.us-west-2.amazonaws.com/${PENTAHO_PDI}/ce/client-tools/pdi-ce-${PENTAHO_PDI}.zip"
+
 FROM amazon/aws-cli:latest as src
 
-ARG BASE_REGISTRY
+ARG PUBLIC_REGISTRY
 ARG BASE_REPO
 ARG BASE_TAG
 ARG AWS_ACCESS_KEY_ID
@@ -48,7 +49,7 @@ ARG S3_PATH
 # RUN mkdir -p "/artifacts" && \
 #    aws s3 cp "s3://${S3_BUCKET}/${S3_PATH}" "/artifacts" --recursive --include "*"
 
-FROM "${BASE_REGISTRY}/${BASE_REPO}:${BASE_TAG}"
+FROM "${PUBLIC_REGISTRY}/${BASE_REPO}:${BASE_TAG}"
 
 ENV JAVA_HOME=/usr/lib/jvm/jre-11-openjdk
 
