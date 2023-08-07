@@ -10,6 +10,7 @@ ARG PUBLIC_REGISTRY="public.ecr.aws"
 ARG BASE_REPO="arkcase/base"
 ARG BASE_TAG="8.7.0"
 ARG VER="9.4.0.0-343"
+ARG BLD="01"
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
 ARG AWS_SESSION_TOKEN
@@ -53,8 +54,13 @@ FROM "${PUBLIC_REGISTRY}/${BASE_REPO}:${BASE_TAG}"
 
 ENV JAVA_HOME=/usr/lib/jvm/jre-11-openjdk
 
-ENV BASE_PATH="/home/pentaho/app/pentaho/pentaho-server" \
-    PENTAHO_USER="pentaho" \
+ENV BASE_DIR="/home/pentaho/app"
+ENV PENTAHO_HOME="${BASE_DIR}/pentaho"
+ENV PENTAHO_PDI_HOME="${BASE_DIR}/pentaho-pdi"
+ENV PENTAHO_PDI_LIB="${PENTAHO_PDI_HOME}/data-integration/lib"
+ENV PENTAHO_TOMCAT="${PENTAHO_HOME}/pentaho-server/tomcat"
+
+ENV PENTAHO_USER="pentaho" \
     PENTAHO_PDI="pentaho-pdi"
 
 ARG VER
@@ -98,8 +104,6 @@ RUN yum -y install \
     useradd --system --user-group "${PENTAHO_USER}" && \
     chmod 777 -R  "/home/${PENTAHO_USER}" && \
     chown -R "${PENTAHO_USER}:" "/home/${PENTAHO_USER}"
-
-ENV PATH="${BASE_PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Install Pentaho Server
 #COPY "run-installer" "/home/pentaho/install/"
@@ -146,16 +150,25 @@ RUN mkdir -p "/home/${PENTAHO_USER}/install" && \
 #    ./run-installer "pdi-ee-client-${PDI_EE_CLIENT}-dist.zip" "expect-script-pdi.exp"
 
 # Add 3rd Party Jar files  
-RUN set -x && curl -L "${MYSQL_DRIVER_URL}" -o "${BASE_PATH}/tomcat/lib/mysql-connector-j-${MYSQL_DRIVER}.jar" && \
-    curl -L "${MARIADB_DRIVER_URL}" -o "${BASE_PATH}/tomcat/lib/mariadb-java-client-${MARIADB_DRIVER}.jar" && \
-    curl -L "${MSSQL_DRIVER_URL}" -o "${BASE_PATH}/tomcat/lib/mssql-jdbc-${MSSQL_DRIVER}.jar" && \
-    curl -L "${ORACLE_DRIVER_URL}" -o "${BASE_PATH}/tomcat/lib/ojdbc11-${ORACLE_DRIVER}.jar" && \
-    curl -L "${POSTGRES_DRIVER_URL}" -o "${BASE_PATH}/tomcat/lib/postgresql-${POSTGRES_DRIVER}.jar" && \
-    curl -L "${ARKCASE_PREAUTH_URL}" -o "${BASE_PATH}/tomcat/webapps/pentaho/WEB-INF/lib/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}-${ARKCASE_PREAUTH_VERSION}-bundled.jar"
+RUN set -x && \
+    rm -rf "${PENTAHO_TOMCAT}/lib"/mysql-connector-java-*.jar && \
+    curl -L "${MYSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-connector-j-${MYSQL_DRIVER}.jar" && \
+    curl -L "${MARIADB_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mariadb-java-client-${MARIADB_DRIVER}.jar" && \
+    curl -L "${MSSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mssql-jdbc-${MSSQL_DRIVER}.jar" && \
+    curl -L "${ORACLE_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/ojdbc11-${ORACLE_DRIVER}.jar" && \
+    curl -L "${POSTGRES_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/postgresql-${POSTGRES_DRIVER}.jar" && \
+    curl -L "${ARKCASE_PREAUTH_URL}" -o "${PENTAHO_TOMCAT}/webapps/pentaho/WEB-INF/lib/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}-${ARKCASE_PREAUTH_VERSION}-bundled.jar" && \
+    cp -vf \
+        "${PENTAHO_TOMCAT}/lib"/mysql-connector-j-*.jar \
+        "${PENTAHO_TOMCAT}/lib"/mariadb-java-client-*.jar \
+        "${PENTAHO_TOMCAT}/lib"/mssql-jdbc-*.jar \
+        "${PENTAHO_TOMCAT}/lib"/ojdbc11-*.jar \
+        "${PENTAHO_TOMCAT}/lib"/postgresql-*.jar \
+        "${PENTAHO_PDI_LIB}"
 
 # Customization from previous Dockerfile
-RUN chmod -R 644 "${BASE_PATH}/tomcat/conf/server.xml" && \
-    export MANTLE="${BASE_PATH}/tomcat/webapps/pentaho/mantle" && \
+RUN chmod -R 644 "${PENTAHO_TOMCAT}/conf/server.xml" && \
+    export MANTLE="${PENTAHO_TOMCAT}/webapps/pentaho/mantle" && \
     cp -rf "${MANTLE}/home/properties" "${MANTLE}" && \
     cp -rf "${MANTLE}/home/content" "${MANTLE}" && \
     cp -rf "${MANTLE}/home/css" "${MANTLE}" && \
@@ -166,5 +179,5 @@ RUN chmod -R 644 "${BASE_PATH}/tomcat/conf/server.xml" && \
     cp -rf "${MANTLE}/browser"/* "${MANTLE}"
 
 EXPOSE 8080
-WORKDIR "${BASE_PATH}"
+WORKDIR "${PENTAHO_HOME}"
 ENTRYPOINT [ "sleep", "infinity" ]
