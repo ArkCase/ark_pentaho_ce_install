@@ -151,13 +151,20 @@ RUN mkdir -p "/home/${PENTAHO_USER}/install" && \
 
 # Add 3rd Party Jar files  
 RUN set -x && \
-    rm -rf "${PENTAHO_TOMCAT}/lib"/mysql-connector-java-*.jar && \
+    rm -rf \
+        "${PENTAHO_TOMCAT}/lib"/mysql-connector-java-*.jar \
+        "${PENTAHO_TOMCAT}/lib"/postgresql-*.jar \
+     && \
     curl -L "${MYSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-connector-j-${MYSQL_DRIVER}.jar" && \
     curl -L "${MARIADB_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mariadb-java-client-${MARIADB_DRIVER}.jar" && \
     curl -L "${MSSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mssql-jdbc-${MSSQL_DRIVER}.jar" && \
     curl -L "${ORACLE_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/ojdbc11-${ORACLE_DRIVER}.jar" && \
     curl -L "${POSTGRES_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/postgresql-${POSTGRES_DRIVER}.jar" && \
     curl -L "${ARKCASE_PREAUTH_URL}" -o "${PENTAHO_TOMCAT}/webapps/pentaho/WEB-INF/lib/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}-${ARKCASE_PREAUTH_VERSION}-bundled.jar" && \
+    rm -rf \
+        "${PENTAHO_PDI_LIB}"/mysql-connector-java-*.jar \
+        "${PENTAHO_PDI_LIB}"/postgresql-*.jar \
+     && \
     cp -vf \
         "${PENTAHO_TOMCAT}/lib"/mysql-connector-j-*.jar \
         "${PENTAHO_TOMCAT}/lib"/mariadb-java-client-*.jar \
