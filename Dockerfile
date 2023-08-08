@@ -33,6 +33,8 @@ ARG PENTAHO_SERVER="9.4.0.0-343"
 ARG PENTAHO_SERVER_URL="https://privatefilesbucket-community-edition.s3.us-west-2.amazonaws.com/${PENTAHO_SERVER}/ce/server/pentaho-server-ce-${PENTAHO_SERVER}.zip"
 ARG PENTAHO_PDI="${PENTAHO_SERVER}"
 ARG PENTAHO_PDI_URL="https://privatefilesbucket-community-edition.s3.us-west-2.amazonaws.com/${PENTAHO_PDI}/ce/client-tools/pdi-ce-${PENTAHO_PDI}.zip"
+ARG NEO4J_PLUGIN_VER="5.0.9"
+ARG NEO4J_PLUGIN_URL="https://github.com/knowbi/knowbi-pentaho-pdi-neo4j-output/releases/download/${NEO4J_PLUGIN_VER}/Neo4JOutput-${NEO4J_PLUGIN_VER}.zip"
 
 FROM amazon/aws-cli:latest as src
 
@@ -57,6 +59,7 @@ ENV BASE_DIR="/home/pentaho/app"
 ENV PENTAHO_HOME="${BASE_DIR}/pentaho"
 ENV PENTAHO_PDI_HOME="${BASE_DIR}/pentaho-pdi"
 ENV PENTAHO_PDI_LIB="${PENTAHO_PDI_HOME}/data-integration/lib"
+ENV PENTAHO_PDI_PLUGINS="${PENTAHO_PDI_HOME}/data-integration/plugins"
 ENV PENTAHO_TOMCAT="${PENTAHO_HOME}/pentaho-server/tomcat"
 
 ENV PENTAHO_USER="pentaho" \
@@ -82,6 +85,7 @@ ARG POSTGRES_DRIVER_URL
 ARG ARKCASE_PREAUTH_SPRING
 ARG ARKCASE_PREAUTH_VERSION
 ARG ARKCASE_PREAUTH_URL
+ARG NEO4J_PLUGIN_URL
 ARG PENTAHO_SERVER
 ARG PENTAHO_SERVER_URL
 ARG PENTAHO_PDI
@@ -150,7 +154,7 @@ RUN mkdir -p "/home/${PENTAHO_USER}/install" && \
 
 # Add 3rd Party Jar files  
 RUN set -x && \
-    rm -rf \
+    rm -fv \
         "${PENTAHO_TOMCAT}/lib"/mysql-connector-java-*.jar \
         "${PENTAHO_TOMCAT}/lib"/postgresql-*.jar \
      && \
@@ -160,7 +164,7 @@ RUN set -x && \
     curl -L "${ORACLE_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/ojdbc11-${ORACLE_DRIVER}.jar" && \
     curl -L "${POSTGRES_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/postgresql-${POSTGRES_DRIVER}.jar" && \
     curl -L "${ARKCASE_PREAUTH_URL}" -o "${PENTAHO_TOMCAT}/webapps/pentaho/WEB-INF/lib/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}-${ARKCASE_PREAUTH_VERSION}-bundled.jar" && \
-    rm -rf \
+    rm -fv \
         "${PENTAHO_PDI_LIB}"/mysql-connector-java-*.jar \
         "${PENTAHO_PDI_LIB}"/postgresql-*.jar \
      && \
@@ -183,6 +187,10 @@ RUN chmod -R 644 "${PENTAHO_TOMCAT}/conf/server.xml" && \
     cp -rf "${MANTLE}/browser/lib" "${MANTLE}" && \
     cp -rf "${MANTLE}/browser/css/browser.css" "${MANTLE}/css" && \
     cp -rf "${MANTLE}/browser"/* "${MANTLE}"
+
+RUN curl -L "${NEO4J_PLUGIN_URL}"  -o "${PENTAHO_PDI_PLUGINS}/neo4j.zip" && \
+    unzip -d "${PENTAHO_PDI_PLUGINS}" "${PENTAHO_PDI_PLUGINS}/neo4j.zip" && \
+    rm -fv "${PENTAHO_PDI_PLUGINS}/neo4j.zip"
 
 EXPOSE 8080
 WORKDIR "${PENTAHO_HOME}"
