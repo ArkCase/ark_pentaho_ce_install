@@ -20,8 +20,8 @@ ARG MARIADB_DRIVER="3.1.2"
 ARG MARIADB_DRIVER_URL="https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/${MARIADB_DRIVER}/mariadb-java-client-${MARIADB_DRIVER}.jar"
 ARG MSSQL_DRIVER="12.2.0.jre11"
 ARG MSSQL_DRIVER_URL="https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/${MSSQL_DRIVER}/mssql-jdbc-${MSSQL_DRIVER}.jar"
-ARG MYSQL_PATCH_DRIVER="1.0.0"
-ARG MYSQL_PATCH_DRIVER_URL="https://project.armedia.com/nexus/repository/armedia/com/armedia/mysql/mysql-legacy-driver/${MYSQL_PATCH_DRIVER}/mysql-legacy-driver-${MYSQL_PATCH_DRIVER}.jar"
+ARG MYSQL_LEGACY_DRIVER="1.0.0"
+ARG MYSQL_LEGACY_DRIVER_URL="https://project.armedia.com/nexus/repository/arkcase/com/armedia/mysql/mysql-legacy-driver/${MYSQL_LEGACY_DRIVER}/mysql-legacy-driver-${MYSQL_LEGACY_DRIVER}.jar"
 ARG MYSQL_DRIVER="8.0.32"
 ARG MYSQL_DRIVER_URL="https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/${MYSQL_DRIVER}/mysql-connector-j-${MYSQL_DRIVER}.jar"
 ARG ORACLE_DRIVER="21.9.0.0"
@@ -80,8 +80,8 @@ ARG MSSQL_DRIVER
 ARG MSSQL_DRIVER_URL
 ARG MYSQL_DRIVER
 ARG MYSQL_DRIVER_URL
-ARG MYSQL_PATCH_DRIVER
-ARG MYSQL_PATCH_DRIVER_URL
+ARG MYSQL_LEGACY_DRIVER
+ARG MYSQL_LEGACY_DRIVER_URL
 ARG ORACLE_DRIVER
 ARG ORACLE_DRIVER_URL
 ARG POSTGRES_DRIVER
@@ -163,7 +163,7 @@ RUN set -x && \
         "${PENTAHO_TOMCAT}/lib"/postgresql-*.jar \
      && \
     curl -L --fail "${MYSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-connector-j-${MYSQL_DRIVER}.jar" && \
-    curl -L --fail "${MYSQL_PATCH_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-legacy-driver-${MYSQL_PATCH_DRIVER}.jar" && \
+    curl -L --fail "${MYSQL_LEGACY_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-legacy-driver-${MYSQL_LEGACY_DRIVER}.jar" && \
     curl -L --fail "${MARIADB_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mariadb-java-client-${MARIADB_DRIVER}.jar" && \
     curl -L --fail "${MSSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mssql-jdbc-${MSSQL_DRIVER}.jar" && \
     curl -L --fail "${ORACLE_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/ojdbc11-${ORACLE_DRIVER}.jar" && \
