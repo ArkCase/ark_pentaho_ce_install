@@ -162,13 +162,13 @@ RUN set -x && \
         "${PENTAHO_TOMCAT}/lib"/mysql-connector-java-*.jar \
         "${PENTAHO_TOMCAT}/lib"/postgresql-*.jar \
      && \
-    curl -L "${MYSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-connector-j-${MYSQL_DRIVER}.jar" && \
-    curl -L "${MYSQL_PATCH_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-legacy-driver-${MYSQL_PATCH_DRIVER}.jar" && \
-    curl -L "${MARIADB_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mariadb-java-client-${MARIADB_DRIVER}.jar" && \
-    curl -L "${MSSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mssql-jdbc-${MSSQL_DRIVER}.jar" && \
-    curl -L "${ORACLE_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/ojdbc11-${ORACLE_DRIVER}.jar" && \
-    curl -L "${POSTGRES_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/postgresql-${POSTGRES_DRIVER}.jar" && \
-    curl -L "${ARKCASE_PREAUTH_URL}" -o "${PENTAHO_TOMCAT}/webapps/pentaho/WEB-INF/lib/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}-${ARKCASE_PREAUTH_VERSION}-bundled.jar" && \
+    curl -L --fail "${MYSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-connector-j-${MYSQL_DRIVER}.jar" && \
+    curl -L --fail "${MYSQL_PATCH_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-legacy-driver-${MYSQL_PATCH_DRIVER}.jar" && \
+    curl -L --fail "${MARIADB_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mariadb-java-client-${MARIADB_DRIVER}.jar" && \
+    curl -L --fail "${MSSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mssql-jdbc-${MSSQL_DRIVER}.jar" && \
+    curl -L --fail "${ORACLE_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/ojdbc11-${ORACLE_DRIVER}.jar" && \
+    curl -L --fail "${POSTGRES_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/postgresql-${POSTGRES_DRIVER}.jar" && \
+    curl -L --fail "${ARKCASE_PREAUTH_URL}" -o "${PENTAHO_TOMCAT}/webapps/pentaho/WEB-INF/lib/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}-${ARKCASE_PREAUTH_VERSION}-bundled.jar" && \
     rm -fv \
         "${PENTAHO_PDI_LIB}"/mysql-connector-java-*.jar \
         "${PENTAHO_PDI_LIB}"/postgresql-*.jar \
