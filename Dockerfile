@@ -8,9 +8,9 @@
 
 ARG PUBLIC_REGISTRY="public.ecr.aws"
 ARG BASE_REPO="arkcase/base"
-ARG BASE_TAG="8.8-01"
+ARG BASE_TAG="8.8-02"
 ARG VER="9.4.0.0-343"
-ARG BLD="01"
+ARG BLD="02"
 ARG MARIADB_DRIVER="3.1.2"
 ARG MARIADB_DRIVER_URL="https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/${MARIADB_DRIVER}/mariadb-java-client-${MARIADB_DRIVER}.jar"
 ARG MSSQL_DRIVER="12.2.0.jre11"
