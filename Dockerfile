@@ -7,10 +7,8 @@
 ###########################################################################################################
 
 ARG PUBLIC_REGISTRY="public.ecr.aws"
-ARG BASE_REPO="arkcase/base"
-ARG BASE_TAG="8-02"
 ARG VER="9.4.0.0-343"
-ARG BLD="02"
+
 ARG MARIADB_DRIVER="3.1.2"
 ARG MARIADB_DRIVER_URL="https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/${MARIADB_DRIVER}/mariadb-java-client-${MARIADB_DRIVER}.jar"
 ARG MSSQL_DRIVER="12.2.0.jre11"
@@ -35,9 +33,13 @@ ARG NEO4J_PLUGIN_URL="https://github.com/knowbi/knowbi-pentaho-pdi-neo4j-output/
 ARG TCNATIVE_VER="1.2.35"
 ARG TCNATIVE_URL="https://archive.apache.org/dist/tomcat/tomcat-connectors/native/${TCNATIVE_VER}/source/tomcat-native-${TCNATIVE_VER}-src.tar.gz"
 
-FROM "${PUBLIC_REGISTRY}/${BASE_REPO}:${BASE_TAG}"
+ARG BASE_REPO="arkcase/base"
+ARG BASE_VER="8"
+ARG BASE_IMG="${PUBLIC_REGISTRY}/${BASE_REPO}:${BASE_VER}"
 
-ENV JAVA_HOME=/usr/lib/jvm/jre-11-openjdk
+FROM "${BASE_IMG}"
+
+ENV JAVA_HOME="/usr/lib/jvm/jre-11-openjdk"
 
 ENV BASE_DIR="/home/pentaho/app"
 ENV PENTAHO_HOME="${BASE_DIR}/pentaho"
