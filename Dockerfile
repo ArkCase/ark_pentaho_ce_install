@@ -7,8 +7,9 @@
 ###########################################################################################################
 
 ARG PUBLIC_REGISTRY="public.ecr.aws"
-ARG VER="9.4.0.0-343"
+ARG VER="9.4.0.0"
 
+ARG ARTIFACT_VER="${VER}-343"
 ARG MARIADB_DRIVER="3.1.2"
 ARG MARIADB_DRIVER_URL="https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/${MARIADB_DRIVER}/mariadb-java-client-${MARIADB_DRIVER}.jar"
 ARG MSSQL_DRIVER="12.2.0.jre11"
@@ -24,10 +25,10 @@ ARG POSTGRES_DRIVER_URL="https://repo1.maven.org/maven2/org/postgresql/postgresq
 ARG ARKCASE_PREAUTH_SPRING="5"
 ARG ARKCASE_PREAUTH_VERSION="1.1.2"
 ARG ARKCASE_PREAUTH_URL="https://project.armedia.com/nexus/repository/arkcase/com/armedia/arkcase/preauth/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}/${ARKCASE_PREAUTH_VERSION}/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}-${ARKCASE_PREAUTH_VERSION}-bundled.jar"
-ARG PENTAHO_SERVER="9.4.0.0-343"
-ARG PENTAHO_SERVER_URL="https://privatefilesbucket-community-edition.s3.us-west-2.amazonaws.com/${PENTAHO_SERVER}/ce/server/pentaho-server-ce-${PENTAHO_SERVER}.zip"
-ARG PENTAHO_PDI="${PENTAHO_SERVER}"
-ARG PENTAHO_PDI_URL="https://privatefilesbucket-community-edition.s3.us-west-2.amazonaws.com/${PENTAHO_PDI}/ce/client-tools/pdi-ce-${PENTAHO_PDI}.zip"
+ARG PENTAHO_SERVER="${ARTIFACT_VER}"
+ARG PENTAHO_SERVER_URL="https://privatefilesbucket-community-edition.s3.us-west-2.amazonaws.com/${ARTIFACT_VER}/ce/server/pentaho-server-ce-${ARTIFACT_VER}.zip"
+ARG PENTAHO_PDI="${ARTIFACT_VER}"
+ARG PENTAHO_PDI_URL="https://privatefilesbucket-community-edition.s3.us-west-2.amazonaws.com/${PENTAHO_PDI}/ce/client-tools/pdi-ce-${ARTIFACT_VER}.zip"
 ARG NEO4J_PLUGIN_VER="5.0.9"
 ARG NEO4J_PLUGIN_URL="https://github.com/knowbi/knowbi-pentaho-pdi-neo4j-output/releases/download/${NEO4J_PLUGIN_VER}/Neo4JOutput-${NEO4J_PLUGIN_VER}.zip"
 ARG TCNATIVE_VER="1.2.35"
@@ -53,11 +54,11 @@ ENV PENTAHO_USER="pentaho" \
 
 ARG VER
 ARG RESOURCE_PATH="artifacts"
-ARG PENTAHO_SERVER_EE="${VER}"
-ARG PIR_PLUGIN_EE="${VER}"
-ARG PAZ_PLUGIN_EE="${VER}"
-ARG PDD_PLUGIN_EE="${VER}"
-ARG PDI_EE_CLIENT="${VER}"
+ARG PENTAHO_SERVER_EE="${ARTIFACT_VER}"
+ARG PIR_PLUGIN_EE="${ARTIFACT_VER}"
+ARG PAZ_PLUGIN_EE="${ARTIFACT_VER}"
+ARG PDD_PLUGIN_EE="${ARTIFACT_VER}"
+ARG PDI_EE_CLIENT="${ARTIFACT_VER}"
 ARG MARIADB_DRIVER
 ARG MARIADB_DRIVER_URL
 ARG MSSQL_DRIVER
