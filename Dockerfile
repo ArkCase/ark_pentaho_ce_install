@@ -8,6 +8,7 @@
 
 ARG PUBLIC_REGISTRY="public.ecr.aws"
 ARG VER="9.4.0.0"
+ARG JAVA="11"
 
 ARG ARTIFACT_VER="${VER}-343"
 ARG MARIADB_DRIVER="3.1.2"
@@ -35,14 +36,12 @@ ARG TCNATIVE_VER="1.2.35"
 ARG TCNATIVE_URL="https://archive.apache.org/dist/tomcat/tomcat-connectors/native/${TCNATIVE_VER}/source/tomcat-native-${TCNATIVE_VER}-src.tar.gz"
 
 ARG BASE_REGISTRY="${PUBLIC_REGISTRY}"
-ARG BASE_REPO="arkcase/base"
+ARG BASE_REPO="arkcase/base-java"
 ARG BASE_VER="8"
 ARG BASE_VER_PFX=""
 ARG BASE_IMG="${BASE_REGISTRY}/${BASE_REPO}:${BASE_VER_PFX}${BASE_VER}"
 
 FROM "${BASE_IMG}"
-
-ENV JAVA_HOME="/usr/lib/jvm/jre-11-openjdk"
 
 ENV BASE_DIR="/home/pentaho/app"
 ENV PENTAHO_HOME="${BASE_DIR}/pentaho"
@@ -55,6 +54,7 @@ ENV PENTAHO_USER="pentaho" \
     PENTAHO_PDI="pentaho-pdi"
 
 ARG VER
+ARG JAVA
 ARG RESOURCE_PATH="artifacts"
 ARG PENTAHO_SERVER_EE="${ARTIFACT_VER}"
 ARG PIR_PLUGIN_EE="${ARTIFACT_VER}"
@@ -89,17 +89,16 @@ LABEL ORG="Armedia LLC" \
       IMAGE_SOURCE=https://github.com/ArkCase/ark_pentaho_ee \
       MAINTAINER="Armedia Devops Team <devops@armedia.com>"
 
-RUN yum -y install \
+RUN set-java "${JAVA}" && \
+    yum -y install \
         apr-devel \
         expect \
         gcc \
-        java-11-openjdk \
-        java-11-devel \
         make \
         openssl-devel \
         redhat-rpm-config \
         unzip \
-    && \
+      && \
     yum clean -y all && \
     mkdir -p "/home/pentaho" && \
     useradd --system --user-group "${PENTAHO_USER}" && \
