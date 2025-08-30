@@ -9,27 +9,31 @@
 ARG PUBLIC_REGISTRY="public.ecr.aws"
 ARG VER="9.4.0.0"
 ARG JAVA="11"
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_SESSION_TOKEN
+ARG AWS_REGION="us-east-1"
 
 ARG ARTIFACT_VER="${VER}-343"
+ARG S3_BUCKET="armedia-container-artifacts"
+ARG S3_PATH="arkcase/pentaho/${ARTIFACT_VER}/community/"
 ARG MARIADB_DRIVER="3.1.2"
-ARG MARIADB_DRIVER_URL="https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/${MARIADB_DRIVER}/mariadb-java-client-${MARIADB_DRIVER}.jar"
+ARG MARIADB_DRIVER_SRC="org.mariadb.jdbc:mariadb-java-client:${MARIADB_DRIVER}"
 ARG MSSQL_DRIVER="12.2.0.jre11"
-ARG MSSQL_DRIVER_URL="https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/${MSSQL_DRIVER}/mssql-jdbc-${MSSQL_DRIVER}.jar"
+ARG MSSQL_DRIVER_SRC="com.microsoft.sqlserver:mssql-jdbc:${MSSQL_DRIVER}"
 ARG MYSQL_DRIVER="8.2.0"
-ARG MYSQL_DRIVER_URL="https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/${MYSQL_DRIVER}/mysql-connector-j-${MYSQL_DRIVER}.jar"
-ARG MYSQL_LEGACY_DRIVER="1.0.0"
-ARG MYSQL_LEGACY_DRIVER_URL="https://nexus.armedia.com/repository/arkcase/com/armedia/mysql/mysql-legacy-driver/${MYSQL_LEGACY_DRIVER}/mysql-legacy-driver-${MYSQL_LEGACY_DRIVER}.jar"
+ARG MYSQL_DRIVER_SRC="com.mysql.mysql-connector-j:${MYSQL_DRIVER}"
 ARG ORACLE_DRIVER="21.9.0.0"
-ARG ORACLE_DRIVER_URL="https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc11/${ORACLE_DRIVER}/ojdbc11-${ORACLE_DRIVER}.jar"
+ARG ORACLE_DRIVER_SRC="com.oracle.database.jdbc:ojdbc11:${ORACLE_DRIVER}"
 ARG POSTGRES_DRIVER="42.5.4"
-ARG POSTGRES_DRIVER_URL="https://repo1.maven.org/maven2/org/postgresql/postgresql/${POSTGRES_DRIVER}/postgresql-${POSTGRES_DRIVER}.jar"
+ARG POSTGRES_DRIVER_SRC="org.postgresql:postgresql:${POSTGRES_DRIVER}"
+
+ARG ARKCASE_MVN_REPO="https://nexus.armedia.com/repository/arkcase"
+ARG MYSQL_LEGACY_DRIVER="1.0.0"
+ARG MYSQL_LEGACY_DRIVER_SRC="com.armedia.mysql:mysql-legacy-driver:${MYSQL_LEGACY_DRIVER}"
 ARG ARKCASE_PREAUTH_SPRING="5"
 ARG ARKCASE_PREAUTH_VERSION="1.4.0"
-ARG ARKCASE_PREAUTH_URL="https://nexus.armedia.com/repository/arkcase/com/armedia/arkcase/preauth/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}/${ARKCASE_PREAUTH_VERSION}/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}-${ARKCASE_PREAUTH_VERSION}-bundled.jar"
-ARG PENTAHO_SERVER="${ARTIFACT_VER}"
-ARG PENTAHO_SERVER_URL="https://privatefilesbucket-community-edition.s3.us-west-2.amazonaws.com/${ARTIFACT_VER}/ce/server/pentaho-server-ce-${ARTIFACT_VER}.zip"
-ARG PENTAHO_PDI="${ARTIFACT_VER}"
-ARG PENTAHO_PDI_URL="https://privatefilesbucket-community-edition.s3.us-west-2.amazonaws.com/${PENTAHO_PDI}/ce/client-tools/pdi-ce-${ARTIFACT_VER}.zip"
+ARG ARKCASE_PREAUTH_SRC="com.armedia.arkcase.preauth:arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}:${ARKCASE_PREAUTH_VERSION}:jar:bundled"
 ARG NEO4J_PLUGIN_VER="5.0.9"
 ARG NEO4J_PLUGIN_URL="https://github.com/knowbi/knowbi-pentaho-pdi-neo4j-output/releases/download/${NEO4J_PLUGIN_VER}/Neo4JOutput-${NEO4J_PLUGIN_VER}.zip"
 ARG TCNATIVE_VER="1.2.35"
@@ -40,6 +44,25 @@ ARG BASE_REPO="arkcase/base-java"
 ARG BASE_VER="8"
 ARG BASE_VER_PFX=""
 ARG BASE_IMG="${BASE_REGISTRY}/${BASE_REPO}:${BASE_VER_PFX}${BASE_VER}"
+
+FROM amazon/aws-cli:latest AS src
+
+ARG PUBLIC_REGISTRY
+ARG BASE_REPO
+ARG BASE_VER
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_SESSION_TOKEN
+ARG AWS_REGION
+ARG S3_BUCKET
+ARG S3_PATH
+
+RUN mkdir -p "/artifacts" && \
+    aws s3 cp "s3://${S3_BUCKET}/${S3_PATH}" "/artifacts" --recursive --include "*" && \
+    yum -y install unzip && \
+    mkdir -p "/install" && \
+    unzip "/artifacts/pentaho-server-ce-${VER}.zip" -d "/install/pentaho" && \
+    unzip "/artifacts/pdi-ce-${PENTAHO_PDI}.zip" -d "/install/pentaho-pdi/"
 
 FROM "${BASE_IMG}"
 
@@ -55,32 +78,21 @@ ENV PENTAHO_USER="pentaho" \
 
 ARG VER
 ARG JAVA
+ARG ARTIFACT_VER
 ARG RESOURCE_PATH="artifacts"
-ARG PENTAHO_SERVER_EE="${ARTIFACT_VER}"
-ARG PIR_PLUGIN_EE="${ARTIFACT_VER}"
-ARG PAZ_PLUGIN_EE="${ARTIFACT_VER}"
-ARG PDD_PLUGIN_EE="${ARTIFACT_VER}"
-ARG PDI_EE_CLIENT="${ARTIFACT_VER}"
-ARG MARIADB_DRIVER
-ARG MARIADB_DRIVER_URL
-ARG MSSQL_DRIVER
-ARG MSSQL_DRIVER_URL
-ARG MYSQL_DRIVER
-ARG MYSQL_DRIVER_URL
-ARG MYSQL_LEGACY_DRIVER
-ARG MYSQL_LEGACY_DRIVER_URL
-ARG ORACLE_DRIVER
-ARG ORACLE_DRIVER_URL
-ARG POSTGRES_DRIVER
-ARG POSTGRES_DRIVER_URL
-ARG ARKCASE_PREAUTH_SPRING
-ARG ARKCASE_PREAUTH_VERSION
-ARG ARKCASE_PREAUTH_URL
+ARG PENTAHO_SERVER_CE="${ARTIFACT_VER}"
+ARG PIR_PLUGIN_CE="${ARTIFACT_VER}"
+ARG PAZ_PLUGIN_CE="${ARTIFACT_VER}"
+ARG PDD_PLUGIN_CE="${ARTIFACT_VER}"
+ARG PDI_CE_CLIENT="${ARTIFACT_VER}"
+ARG MARIADB_DRIVER_SRC
+ARG MSSQL_DRIVER_SRC
+ARG MYSQL_DRIVER_SRC
+ARG MYSQL_LEGACY_DRIVER_SRC
+ARG ORACLE_DRIVER_SRC
+ARG POSTGRES_DRIVER_SRC
+ARG ARKCASE_PREAUTH_SRC
 ARG NEO4J_PLUGIN_URL
-ARG PENTAHO_SERVER
-ARG PENTAHO_SERVER_URL
-ARG PENTAHO_PDI
-ARG PENTAHO_PDI_URL
 ARG TCNATIVE_URL
 
 LABEL ORG="Armedia LLC" \
@@ -107,30 +119,23 @@ RUN set-java "${JAVA}" && \
 
 USER "${PENTAHO_USER}"
 
-RUN mkdir -p "/home/${PENTAHO_USER}/install" && \
-    mkdir -p "/home/${PENTAHO_USER}/app/pentaho" && \
-    set -x && \
-    curl -L "${PENTAHO_SERVER_URL}" -o "/home/${PENTAHO_USER}/install/pentaho-server-ce-${PENTAHO_SERVER}.zip" && \
-    unzip -q "/home/${PENTAHO_USER}/install/pentaho-server-ce-${PENTAHO_SERVER}.zip" -d "/home/${PENTAHO_USER}/app/pentaho/" && \
-    mkdir -p "/home/${PENTAHO_USER}/app/pentaho-pdi" && \
-    set -x && \
-    curl -L "${PENTAHO_PDI_URL}" -o "/home/${PENTAHO_USER}/install/pdi-ce-${PENTAHO_PDI}.zip" && \
-    unzip -q "/home/${PENTAHO_USER}/install/pdi-ce-${PENTAHO_PDI}.zip" -d "/home/${PENTAHO_USER}/app/pentaho-pdi/" && \
-    rm -rf "/home/${PENTAHO_USER}/install"
+RUN mkdir -p "/home/${PENTAHO_USER}/app"
+COPY --from=src "/install"/* "/home/${PENTAHO_USER}/app/"
+RUN chown -R "${PENTAHO_USER}:" "/home/${PENTAHO_USER}/app"
 
 # Add 3rd Party Jar files  
 RUN set -x && \
     rm -fv \
         "${PENTAHO_TOMCAT}/lib"/mysql-connector-java-*.jar \
         "${PENTAHO_TOMCAT}/lib"/postgresql-*.jar \
-     && \
-    curl -L --fail "${MYSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-connector-j-${MYSQL_DRIVER}.jar" && \
-    curl -L --fail "${MYSQL_LEGACY_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mysql-legacy-driver-${MYSQL_LEGACY_DRIVER}.jar" && \
-    curl -L --fail "${MARIADB_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mariadb-java-client-${MARIADB_DRIVER}.jar" && \
-    curl -L --fail "${MSSQL_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/mssql-jdbc-${MSSQL_DRIVER}.jar" && \
-    curl -L --fail "${ORACLE_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/ojdbc11-${ORACLE_DRIVER}.jar" && \
-    curl -L --fail "${POSTGRES_DRIVER_URL}" -o "${PENTAHO_TOMCAT}/lib/postgresql-${POSTGRES_DRIVER}.jar" && \
-    curl -L --fail "${ARKCASE_PREAUTH_URL}" -o "${PENTAHO_TOMCAT}/webapps/pentaho/WEB-INF/lib/arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}-${ARKCASE_PREAUTH_VERSION}-bundled.jar" && \
+      && \
+    mvn-get "${MYSQL_DRIVER_SRC}" "${PENTAHO_TOMCAT}/lib" && \
+    mvn-get "${MARIADB_DRIVER_SRC}" "${PENTAHO_TOMCAT}/lib" && \
+    mvn-get "${MSSQL_DRIVER_SRC}" "${PENTAHO_TOMCAT}/lib" && \
+    mvn-get "${ORACLE_DRIVER_SRC}" "${PENTAHO_TOMCAT}/lib" && \
+    mvn-get "${POSTGRES_DRIVER_SRC}" "${PENTAHO_TOMCAT}/lib" && \
+    mvn-get "${MYSQL_LEGACY_DRIVER_SRC}" "${ARKCASE_MVN_REPO}" "${PENTAHO_TOMCAT}/lib" && \
+    mvn-get "${ARKCASE_PREAUTH_SRC}" "${ARKCASE_MVN_REPO}" "${PENTAHO_TOMCAT}/webapps/pentaho/WEB-INF/lib" && \
     rm -fv \
         "${PENTAHO_PDI_LIB}"/mysql-connector-java-*.jar \
         "${PENTAHO_PDI_LIB}"/postgresql-*.jar \
@@ -157,7 +162,7 @@ RUN chmod -R 644 "${PENTAHO_TOMCAT}/conf/server.xml" && \
     cp -rf "${MANTLE}/browser"/* "${MANTLE}"
 
 # Add the Neo4j Plugin
-RUN curl -L "${NEO4J_PLUGIN_URL}"  -o "${PENTAHO_PDI_PLUGINS}/neo4j.zip" && \
+RUN curl -L "${NEO4J_PLUGIN_URL}" -o "${PENTAHO_PDI_PLUGINS}/neo4j.zip" && \
     unzip -d "${PENTAHO_PDI_PLUGINS}" "${PENTAHO_PDI_PLUGINS}/neo4j.zip" && \
     rm -fv "${PENTAHO_PDI_PLUGINS}/neo4j.zip"
 
