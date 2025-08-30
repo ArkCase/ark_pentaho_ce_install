@@ -60,9 +60,9 @@ ARG S3_PATH
 RUN mkdir -p "/artifacts" && \
     aws s3 cp "s3://${S3_BUCKET}/${S3_PATH}" "/artifacts" --recursive --include "*" && \
     yum -y install unzip && \
-    mkdir -p "/install" && \
+    mkdir -p "/install" "/install/pentaho" "/install/pentaho-pdi" && \
     unzip "/artifacts/pentaho-server-ce-${VER}.zip" -d "/install/pentaho" && \
-    unzip "/artifacts/pdi-ce-${PENTAHO_PDI}.zip" -d "/install/pentaho-pdi/"
+    unzip "/artifacts/pdi-ce-${PENTAHO_PDI}.zip" -d "/install/pentaho-pdi"
 
 FROM "${BASE_IMG}"
 
@@ -96,9 +96,9 @@ ARG NEO4J_PLUGIN_URL
 ARG TCNATIVE_URL
 
 LABEL ORG="Armedia LLC" \
-      APP="Pentaho EE" \
+      APP="Pentaho CE" \
       VERSION="1.0" \
-      IMAGE_SOURCE=https://github.com/ArkCase/ark_pentaho_ee \
+      IMAGE_SOURCE=https://github.com/ArkCase/ark_pentaho_ce \
       MAINTAINER="Armedia Devops Team <devops@armedia.com>"
 
 RUN set-java "${JAVA}" && \
