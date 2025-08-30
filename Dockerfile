@@ -63,6 +63,7 @@ RUN mkdir -p "/artifacts" && \
     mkdir -p "/install" "/install/pentaho" "/install/pentaho-pdi" && \
     unzip "/artifacts/pentaho-server-ce-${VER}.zip" -d "/install/pentaho" && \
     unzip "/artifacts/pdi-ce-${PENTAHO_PDI}.zip" -d "/install/pentaho-pdi"
+RUN ls -l "/artifacts/" "/install" "/install"/* && sleep 10
 
 FROM "${BASE_IMG}"
 
