@@ -22,7 +22,7 @@ ARG MARIADB_DRIVER_SRC="org.mariadb.jdbc:mariadb-java-client:${MARIADB_DRIVER}"
 ARG MSSQL_DRIVER="12.2.0.jre11"
 ARG MSSQL_DRIVER_SRC="com.microsoft.sqlserver:mssql-jdbc:${MSSQL_DRIVER}"
 ARG MYSQL_DRIVER="8.2.0"
-ARG MYSQL_DRIVER_SRC="com.mysql.mysql-connector-j:${MYSQL_DRIVER}"
+ARG MYSQL_DRIVER_SRC="com.mysql:mysql-connector-j:${MYSQL_DRIVER}"
 ARG ORACLE_DRIVER="21.9.0.0"
 ARG ORACLE_DRIVER_SRC="com.oracle.database.jdbc:ojdbc11:${ORACLE_DRIVER}"
 ARG POSTGRES_DRIVER="42.5.4"
@@ -30,7 +30,7 @@ ARG POSTGRES_DRIVER_SRC="org.postgresql:postgresql:${POSTGRES_DRIVER}"
 
 ARG ARKCASE_MVN_REPO="https://nexus.armedia.com/repository/arkcase"
 ARG MYSQL_LEGACY_DRIVER="1.0.0"
-ARG MYSQL_LEGACY_DRIVER_SRC="com.armedia.mysql:mysql-legacy-driver:${MYSQL_LEGACY_DRIVER}"
+ARG MYSQL_LEGACY_DRIVER_SRC="com.armedia.mysql:mysql-legacy-driver:${MYSQL_LEGACY_DRIVER}:jar"
 ARG ARKCASE_PREAUTH_SPRING="5"
 ARG ARKCASE_PREAUTH_VERSION="1.4.0"
 ARG ARKCASE_PREAUTH_SRC="com.armedia.arkcase.preauth:arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}:${ARKCASE_PREAUTH_VERSION}:jar:bundled"
@@ -56,14 +56,14 @@ ARG AWS_SESSION_TOKEN
 ARG AWS_REGION
 ARG S3_BUCKET
 ARG S3_PATH
+ARG ARTIFACT_VER
 
 RUN mkdir -p "/artifacts" && \
     aws s3 cp "s3://${S3_BUCKET}/${S3_PATH}" "/artifacts" --recursive --include "*" && \
     yum -y install unzip && \
     mkdir -p "/install" "/install/pentaho" "/install/pentaho-pdi" && \
-    unzip "/artifacts/pentaho-server-ce-${VER}.zip" -d "/install/pentaho" && \
-    unzip "/artifacts/pdi-ce-${PENTAHO_PDI}.zip" -d "/install/pentaho-pdi"
-RUN ls -l "/artifacts/" "/install" "/install"/* && sleep 10
+    unzip "/artifacts/pentaho-server-ce-${ARTIFACT_VER}.zip" -d "/install/pentaho" && \
+    unzip "/artifacts/pdi-ce-${ARTIFACT_VER}.zip" -d "/install/pentaho-pdi"
 
 FROM "${BASE_IMG}"
 
@@ -89,9 +89,10 @@ ARG PDI_CE_CLIENT="${ARTIFACT_VER}"
 ARG MARIADB_DRIVER_SRC
 ARG MSSQL_DRIVER_SRC
 ARG MYSQL_DRIVER_SRC
-ARG MYSQL_LEGACY_DRIVER_SRC
 ARG ORACLE_DRIVER_SRC
 ARG POSTGRES_DRIVER_SRC
+ARG ARKCASE_MVN_REPO
+ARG MYSQL_LEGACY_DRIVER_SRC
 ARG ARKCASE_PREAUTH_SRC
 ARG NEO4J_PLUGIN_URL
 ARG TCNATIVE_URL
@@ -115,14 +116,12 @@ RUN set-java "${JAVA}" && \
     yum clean -y all && \
     mkdir -p "/home/pentaho" && \
     useradd --system --user-group "${PENTAHO_USER}" && \
-    chmod 777 -R  "/home/${PENTAHO_USER}" && \
+    chmod 777 -R "/home/${PENTAHO_USER}" && \
     chown -R "${PENTAHO_USER}:" "/home/${PENTAHO_USER}"
 
 USER "${PENTAHO_USER}"
 
-RUN mkdir -p "/home/${PENTAHO_USER}/app"
-COPY --from=src "/install"/* "/home/${PENTAHO_USER}/app/"
-RUN chown -R "${PENTAHO_USER}:" "/home/${PENTAHO_USER}/app"
+COPY --from=src --chown="${PENTAHO_USER}:${PENTAHO_USER}" "/install" "/home/${PENTAHO_USER}/app"
 
 # Add 3rd Party Jar files  
 RUN set -x && \
