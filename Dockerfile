@@ -169,10 +169,11 @@ RUN curl -L "${NEO4J_PLUGIN_URL}" -o "${PENTAHO_PDI_PLUGINS}/neo4j.zip" && \
 # Build the Tomcat native APR connector
 RUN cd "${PENTAHO_TOMCAT}" && \
     curl -L "${TCNATIVE_URL}" | tar -xzvf - && \
-    cd tomcat-native-*-src/native && \
+    pushd tomcat-native-*-src/native && \
     ./configure --prefix="${PENTAHO_TOMCAT}" && \
     make && \
     make install && \
+    popd && \
     rm -rf tomcat-native-*-src
 
 EXPOSE 8080
