@@ -34,6 +34,7 @@ ARG MYSQL_LEGACY_DRIVER_SRC="com.armedia.mysql:mysql-legacy-driver:${MYSQL_LEGAC
 ARG ARKCASE_PREAUTH_SPRING="5"
 ARG ARKCASE_PREAUTH_VERSION="1.4.0"
 ARG ARKCASE_PREAUTH_SRC="com.armedia.arkcase.preauth:arkcase-preauth-springsec-v${ARKCASE_PREAUTH_SPRING}:${ARKCASE_PREAUTH_VERSION}:jar:bundled"
+
 ARG NEO4J_PLUGIN_VER="5.0.9"
 ARG NEO4J_PLUGIN_URL="https://github.com/knowbi/knowbi-pentaho-pdi-neo4j-output/releases/download/${NEO4J_PLUGIN_VER}/Neo4JOutput-${NEO4J_PLUGIN_VER}.zip"
 ARG TCNATIVE_VER="1.2.35"
@@ -72,7 +73,8 @@ ENV PENTAHO_HOME="${BASE_DIR}/pentaho"
 ENV PENTAHO_PDI_HOME="${BASE_DIR}/pentaho-pdi"
 ENV PENTAHO_PDI_LIB="${PENTAHO_PDI_HOME}/data-integration/lib"
 ENV PENTAHO_PDI_PLUGINS="${PENTAHO_PDI_HOME}/data-integration/plugins"
-ENV PENTAHO_TOMCAT="${PENTAHO_HOME}/pentaho-server/tomcat"
+ENV PENTAHO_SERVER="${PENTAHO_HOME}/pentaho-server"
+ENV PENTAHO_TOMCAT="${PENTAHO_SERVER}/tomcat"
 
 ENV PENTAHO_USER="pentaho" \
     PENTAHO_PDI="pentaho-pdi"
@@ -148,6 +150,9 @@ RUN set -x && \
         "${PENTAHO_TOMCAT}/lib"/ojdbc11-*.jar \
         "${PENTAHO_TOMCAT}/lib"/postgresql-*.jar \
         "${PENTAHO_PDI_LIB}"
+
+# Remove the default/demo content - we don't care about it!
+RUN find "${PENTAHO_SERVER}/pentaho-solutions/system/default-content" -type f -delete
 
 # Customization from previous Dockerfile
 RUN chmod -R 644 "${PENTAHO_TOMCAT}/conf/server.xml" && \
