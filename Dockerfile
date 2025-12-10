@@ -42,7 +42,7 @@ ARG TCNATIVE_URL="https://archive.apache.org/dist/tomcat/tomcat-connectors/nativ
 
 ARG BASE_REGISTRY="${PUBLIC_REGISTRY}"
 ARG BASE_REPO="arkcase/base-java"
-ARG BASE_VER="8"
+ARG BASE_VER="22.04"
 ARG BASE_VER_PFX=""
 ARG BASE_IMG="${BASE_REGISTRY}/${BASE_REPO}:${BASE_VER_PFX}${BASE_VER}"
 
@@ -101,24 +101,20 @@ ARG TCNATIVE_URL
 
 LABEL ORG="Armedia LLC" \
       APP="Pentaho CE" \
-      VERSION="1.0" \
-      IMAGE_SOURCE=https://github.com/ArkCase/ark_pentaho_ce \
+      VERSION="${VER}" \
+      IMAGE_SOURCE="https://github.com/ArkCase/ark_pentaho_ce" \
       MAINTAINER="Armedia Devops Team <devops@armedia.com>"
 
 RUN set-java "${JAVA}" && \
-    yum -y install \
-        apr-devel \
+    apt-get -y install \
+        libapr1-dev \
+        libssl-dev \
         expect \
-        gcc \
-        make \
-        openssl-devel \
-        redhat-rpm-config \
-        unzip \
       && \
-    yum clean -y all && \
+    apt-get clean && \
     mkdir -p "/home/pentaho" && \
     useradd --system --user-group "${PENTAHO_USER}" && \
-    chmod 777 -R "/home/${PENTAHO_USER}" && \
+    chmod -R a+rwX "/home/${PENTAHO_USER}" && \
     chown -R "${PENTAHO_USER}:" "/home/${PENTAHO_USER}"
 
 USER "${PENTAHO_USER}"
