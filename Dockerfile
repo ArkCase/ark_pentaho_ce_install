@@ -106,6 +106,7 @@ LABEL ORG="Armedia LLC" \
       MAINTAINER="Armedia Devops Team <devops@armedia.com>"
 
 RUN set-java "${JAVA}" && \
+    DEBIAN_FRONTEND=noninteractive \
     apt-get -y install \
         libapr1-dev \
         libssl-dev \
@@ -168,14 +169,16 @@ RUN curl -L "${NEO4J_PLUGIN_URL}" -o "${PENTAHO_PDI_PLUGINS}/neo4j.zip" && \
     rm -fv "${PENTAHO_PDI_PLUGINS}/neo4j.zip"
 
 # Build the Tomcat native APR connector
-RUN cd "${PENTAHO_TOMCAT}" && \
+RUN export BUILD_DIR="${PENTAHO_TOMCAT}/.tcnative-build" && \
+    mkdir -p "${BUILD_DIR}" && \
+    cd "${BUILD_DIR}" && \
     curl -L "${TCNATIVE_URL}" | tar -xzvf - && \
-    pushd tomcat-native-*-src/native && \
+    cd tomcat-native-*-src/native && \
     ./configure --prefix="${PENTAHO_TOMCAT}" && \
     make && \
     make install && \
-    popd && \
-    rm -rf tomcat-native-*-src
+    cd / && \
+    rm -rf "${BUILD_DIR}"
 
 EXPOSE 8080
 WORKDIR "${PENTAHO_HOME}"
