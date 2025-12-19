@@ -46,6 +46,11 @@ ARG BASE_VER="22.04"
 ARG BASE_VER_PFX=""
 ARG BASE_IMG="${BASE_REGISTRY}/${BASE_REPO}:${BASE_VER_PFX}${BASE_VER}"
 
+ARG BASE_TOMCAT_REGISTRY="${BASE_REGISTRY}"
+ARG BASE_TOMCAT_REPO="arkcase/base-tomcat"
+ARG BASE_TOMCAT_VER="9"
+ARG BASE_TOMCAT_IMG="${BASE_TOMCAT_REGISTRY}/${BASE_TOMCAT_REPO}:${BASE_VER_PFX}${BASE_TOMCAT_VER}"
+
 FROM amazon/aws-cli:latest AS src
 
 ARG PUBLIC_REGISTRY
@@ -65,6 +70,8 @@ RUN mkdir -p "/artifacts" && \
     mkdir -p "/install" "/install/pentaho" "/install/pentaho-pdi" && \
     unzip "/artifacts/pentaho-server-ce-${ARTIFACT_VER}.zip" -d "/install/pentaho" && \
     unzip "/artifacts/pdi-ce-${ARTIFACT_VER}.zip" -d "/install/pentaho-pdi"
+
+FROM "${BASE_TOMCAT_IMG}" AS tomcat-src
 
 FROM "${BASE_IMG}"
 
@@ -168,17 +175,9 @@ RUN curl -L "${NEO4J_PLUGIN_URL}" -o "${PENTAHO_PDI_PLUGINS}/neo4j.zip" && \
     unzip -d "${PENTAHO_PDI_PLUGINS}" "${PENTAHO_PDI_PLUGINS}/neo4j.zip" && \
     rm -fv "${PENTAHO_PDI_PLUGINS}/neo4j.zip"
 
-# Build the Tomcat native APR connector
-RUN export BUILD_DIR="${PENTAHO_TOMCAT}/.tcnative-build" && \
-    mkdir -p "${BUILD_DIR}" && \
-    cd "${BUILD_DIR}" && \
-    curl -L "${TCNATIVE_URL}" | tar -xzvf - && \
-    cd tomcat-native-*-src/native && \
-    ./configure --prefix="${PENTAHO_TOMCAT}" && \
-    make && \
-    make install && \
-    cd / && \
-    rm -rf "${BUILD_DIR}"
+# Copy the Tomcat native APR connector
+ENV NATIVE_LIB="${PENTAHO_TOMCAT}/lib"
+COPY --from=tomcat-src --chmod="0755" "/app/tomcat/lib/native/${JAVA}" "${NATIVE_LIB}"
 
 EXPOSE 8080
 WORKDIR "${PENTAHO_HOME}"
