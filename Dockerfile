@@ -37,8 +37,6 @@ ARG ARKCASE_PREAUTH_SRC="com.armedia.arkcase.preauth:arkcase-preauth-springsec-v
 
 ARG NEO4J_PLUGIN_VER="5.0.9"
 ARG NEO4J_PLUGIN_URL="https://github.com/knowbi/knowbi-pentaho-pdi-neo4j-output/releases/download/${NEO4J_PLUGIN_VER}/Neo4JOutput-${NEO4J_PLUGIN_VER}.zip"
-ARG TCNATIVE_VER="1.2.35"
-ARG TCNATIVE_URL="https://archive.apache.org/dist/tomcat/tomcat-connectors/native/${TCNATIVE_VER}/source/tomcat-native-${TCNATIVE_VER}-src.tar.gz"
 
 ARG BASE_REGISTRY="${PUBLIC_REGISTRY}"
 ARG BASE_REPO="arkcase/base-java"
@@ -104,7 +102,6 @@ ARG ARKCASE_MVN_REPO
 ARG MYSQL_LEGACY_DRIVER_SRC
 ARG ARKCASE_PREAUTH_SRC
 ARG NEO4J_PLUGIN_URL
-ARG TCNATIVE_URL
 
 LABEL ORG="Armedia LLC" \
       APP="Pentaho CE" \
