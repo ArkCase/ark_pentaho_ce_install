@@ -174,7 +174,8 @@ RUN curl -L "${NEO4J_PLUGIN_URL}" -o "${PENTAHO_PDI_PLUGINS}/neo4j.zip" && \
 
 # Copy the Tomcat native APR connector
 ENV NATIVE_LIB="${PENTAHO_TOMCAT}/lib"
-COPY --from=tomcat-src --chmod="0755" "/app/tomcat/lib/native/${JAVA}" "${NATIVE_LIB}"
+ENV NATIVE_VER="1.2"
+COPY --from=tomcat-src --chmod="0755" "/app/tomcat/lib/native/${NATIVE_VER}/${JAVA}" "${NATIVE_LIB}"
 
 EXPOSE 8080
 WORKDIR "${PENTAHO_HOME}"
