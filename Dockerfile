@@ -9,10 +9,6 @@
 ARG PUBLIC_REGISTRY="public.ecr.aws"
 ARG VER="9.4.0.0"
 ARG JAVA="11"
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_SECRET_ACCESS_KEY
-ARG AWS_SESSION_TOKEN
-ARG AWS_REGION="us-east-1"
 
 ARG ARTIFACT_VER="${VER}-343"
 ARG S3_BUCKET="armedia-container-artifacts"
@@ -55,15 +51,13 @@ FROM amazon/aws-cli:latest AS src
 ARG PUBLIC_REGISTRY
 ARG BASE_REPO
 ARG BASE_VER
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_SECRET_ACCESS_KEY
-ARG AWS_SESSION_TOKEN
-ARG AWS_REGION
 ARG S3_BUCKET
 ARG S3_PATH
 ARG ARTIFACT_VER
 
-RUN mkdir -p "/artifacts" && \
+RUN --mount=type=secret,id=aws_auth \
+    source /run/secrets/aws_auth && \
+    mkdir -p "/artifacts" && \
     aws s3 cp "s3://${S3_BUCKET}/${S3_PATH}" "/artifacts" --recursive --include "*" && \
     yum -y install unzip && \
     mkdir -p "/install" "/install/pentaho" "/install/pentaho-pdi" && \
