@@ -56,8 +56,11 @@ ARG S3_BUCKET
 ARG S3_PATH
 ARG ARTIFACT_VER
 
-RUN --mount=type=secret,id=aws_auth \
-    . /run/secrets/aws_auth && \
+RUN --mount=type=secret,id=aws_conf \
+    --mount=type=secret,id=aws_auth \
+    export AWS_PROFILE="default" && \
+    export AWS_CONFIG_FILE="/run/secrets/aws_conf" && \
+    export AWS_SHARED_CREDENTIALS_FILE="/run/secrets/aws_auth" && \
     mkdir -p "/artifacts" && \
     aws s3 cp "s3://${S3_BUCKET}/${S3_PATH}" "/artifacts" --recursive --include "*" && \
     yum -y install unzip && \
