@@ -58,7 +58,7 @@ ARG ARTIFACT_VER
 
 RUN --mount=type=secret,id=aws_conf \
     --mount=type=secret,id=aws_auth \
-    export AWS_PROFILE="default" && \
+    export AWS_PROFILE="armedia-docker-build" && \
     export AWS_CONFIG_FILE="/run/secrets/aws_conf" && \
     export AWS_SHARED_CREDENTIALS_FILE="/run/secrets/aws_auth" && \
     mkdir -p "/artifacts" && \
